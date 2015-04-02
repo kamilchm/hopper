@@ -1,0 +1,4 @@
+package: github.com/kamilchm/hopper
+
+import:
+    - package: github.com/EverythingMe/gofigure
