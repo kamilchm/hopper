@@ -1,20 +1,94 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/EverythingMe/gofigure"
 	"github.com/EverythingMe/gofigure/yaml"
+
+	"github.com/fsouza/go-dockerclient"
 )
 
 type hop struct {
 	Container   string
 	Entrypoint  string
 	Permissions permissions
+}
+
+func (h *hop) run(cmdArgs ...string) (int, error) {
+	endpoint := "unix:///var/run/docker.sock"
+	client, err := docker.NewClient(endpoint)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	containerConfig := &docker.Config{
+		Image:        h.Container,
+		Entrypoint:   []string{h.Entrypoint},
+		Cmd:          cmdArgs,
+		Volumes:      make(map[string]struct{}),
+		Tty:          true,
+		AttachStdout: true,
+		AttachStderr: true,
+	}
+
+	hostConfig := &docker.HostConfig{}
+
+	if h.Permissions.Cwd {
+		hostWd, _ := os.Getwd()
+		containerWd := "/hopper"
+		containerConfig.WorkingDir = containerWd
+		hostConfig.Binds = []string{hostWd + ":" + containerWd}
+	}
+
+	container, err := client.CreateContainer(docker.CreateContainerOptions{"", containerConfig, hostConfig})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func() {
+		client.RemoveContainer(docker.RemoveContainerOptions{
+			ID:    container.ID,
+			Force: true,
+		})
+	}()
+
+	attachChan := make(chan struct{})
+	go func(succChan chan struct{}) {
+		outWr := bufio.NewWriter(os.Stdout)
+		errWr := bufio.NewWriter(os.Stderr)
+		defer outWr.Flush()
+		defer errWr.Flush()
+		err := client.AttachToContainer(docker.AttachToContainerOptions{
+			Container:    container.ID,
+			Stdout:       true,
+			Stderr:       true,
+			OutputStream: outWr,
+			ErrorStream:  errWr,
+			Stream:       true,
+			RawTerminal:  true,
+			Success:      succChan,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(attachChan)
+
+	_, ok := <-attachChan
+	if ok {
+		attachChan <- struct{}{}
+	}
+
+	err = client.StartContainer(container.ID, &docker.HostConfig{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client.WaitContainer(container.ID)
 }
 
 type permissions struct {
@@ -25,40 +99,20 @@ type hops map[string]hop
 
 func main() {
 	cmdName := os.Args[0][strings.LastIndex(os.Args[0], "/")+1:]
-	hop, err := getHop(cmdName)
+	h, err := getHop(cmdName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(hop)
 
 	cmdArgs := os.Args[1:]
-	dockerArgs := []string{"run"}
 
-	dockerArgs = append(dockerArgs, []string{"--entrypoint=" + hop.Entrypoint}...)
-
-	if hop.Permissions.Cwd {
-		cwd, _ := os.Getwd()
-		dockerArgs = append(dockerArgs, []string{"-v", cwd + ":/hopper", "-w=/hopper"}...)
+	exitCode, err := h.run(cmdArgs...)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(exitCode)
 	}
 
-	dockerArgs = append(dockerArgs, []string{"-t", hop.Container}...)
-
-	dockerArgs = append(dockerArgs, cmdArgs...)
-
-	binary, lookErr := exec.LookPath("docker")
-	if lookErr != nil {
-		panic(lookErr)
-	}
-
-	fmt.Println(dockerArgs)
-
-	cmd := exec.Command(binary, dockerArgs...)
-	cmd.Env = os.Environ()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		os.Exit(1)
-	}
+	os.Exit(exitCode)
 }
 
 func getHop(name string) (hop, error) {
