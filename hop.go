@@ -27,13 +27,23 @@ func (h *hop) run(cmdArgs ...string) (int, error) {
 	}
 
 	containerConfig := &docker.Config{
-		Image:        h.Container,
-		Entrypoint:   []string{h.Entrypoint},
-		Cmd:          cmdArgs,
-		Volumes:      make(map[string]struct{}),
-		Tty:          true,
-		AttachStdout: true,
-		AttachStderr: true,
+		Image:      h.Container,
+		Entrypoint: []string{h.Entrypoint},
+		Cmd:        cmdArgs,
+		Volumes:    make(map[string]struct{}),
+		StdinOnce:  true,
+	}
+
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
+	if fi.Mode()&os.ModeNamedPipe == 0 {
+		containerConfig.Tty = true
+		containerConfig.OpenStdin = false
+	} else {
+		containerConfig.Tty = false
+		containerConfig.OpenStdin = true
 	}
 
 	hostConfig := &docker.HostConfig{}
@@ -67,8 +77,10 @@ func (h *hop) run(cmdArgs ...string) (int, error) {
 			Container:    container.ID,
 			Stdout:       true,
 			Stderr:       true,
+			Stdin:        true,
 			OutputStream: outWr,
 			ErrorStream:  errWr,
+			InputStream:  os.Stdin,
 			Stream:       true,
 			RawTerminal:  true,
 			Success:      succChan,
