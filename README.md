@@ -24,4 +24,5 @@
 
 ## Similiar tools
 
+* https://github.com/tailhook/vagga
 * https://github.com/jamiemccrindle/dockerception
