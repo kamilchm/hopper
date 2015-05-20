@@ -8,26 +8,45 @@ import (
 	"log"
 )
 
-func TestConfig(t *testing.T) {
-	Convey("Given config with echo docker hop", t, func() {
-		hopDef := `
+func TestDockerConfig(t *testing.T) {
+	Convey("Given config with two docker hops", t, func() {
+		hopDef := `---
 echo:
 - docker:
     image: ubuntu
     command: echo
+cat:
+- docker:
+    image: alpine
+    command: cat
+    permissions:
+        cwd: yes
 `
 		configFile := prepareConfig(hopDef)
 
 		Convey("When hops are parsed", func() {
 			hops, _ := LoadHops(configFile)
-			echoHop, present := hops["echo"]
 
+			echoHop, present := hops["echo"]
 			Convey("There should be echo hop", func() {
 				So(present, ShouldBeTrue)
 			})
 
-			Convey("The hop should be docker type", func() {
-				So(echoHop[0], ShouldHaveSameTypeAs, Docker{})
+			catHop, present := hops["cat"]
+			Convey("There should be cat hop", func() {
+				So(present, ShouldBeTrue)
+			})
+
+			Convey("Both hops should have docker definition", func() {
+				So(echoHop[0], ShouldResemble, &Docker{
+					Image:   "ubuntu",
+					Command: "echo",
+				})
+				So(catHop[0], ShouldResemble, &Docker{
+					Image:       "alpine",
+					Command:     "cat",
+					Permissions: permissions{true},
+				})
 			})
 		})
 	})
