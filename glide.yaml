@@ -3,3 +3,4 @@ package: github.com/kamilchm/hopper
 import:
     - package: github.com/EverythingMe/gofigure
     - package: github.com/fsouza/go-dockerclient
+    - package: github.com/smartystreets/goconvey

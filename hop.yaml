@@ -1,0 +1,34 @@
+---
+azazel: 
+    - docker:
+        image: azazel
+        command: azazel
+
+http:
+    - docker:
+        image: httpie
+        command: http
+
+cat:
+    - docker:
+        image: ubuntu
+        command: cat
+        permissions:
+            cwd: yes
+
+grep:
+    - docker:
+        image: ubuntu
+        command: grep
+
+ls:
+    - docker:
+        image: ubuntu
+        command: ls
+        permissions:
+            cwd: yes
+
+echo:
+    - docker:
+        image: ubuntu
+        command: echo
