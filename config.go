@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
-	"reflect"
+	"fmt"
 
 	"github.com/EverythingMe/gofigure"
 	"github.com/EverythingMe/gofigure/yaml"
+	"github.com/mitchellh/mapstructure"
 )
 
 func LoadHops(configFile string) (hops, error) {
@@ -20,42 +20,30 @@ func LoadHops(configFile string) (hops, error) {
 	return hops, nil
 }
 
+type typedHops map[string]([]map[string]interface{})
+
 func loadConfigMap(configMap map[string]interface{}) (hops, error) {
 	hopsConfig := make(hops)
-	for name, def := range configMap {
-		h := make([]Hop, 0)
-		switch deflT := def.(type) {
-		case []interface{}:
-			firstDef := deflT[0]
-			switch defT := firstDef.(type) {
-			case map[interface{}]interface{}:
-				for hopType, params := range defT {
-					switch hopType {
-					case "docker":
-						switch pT := params.(type) {
-						case map[interface{}]interface{}:
-							d := &Docker{}
-							switch image := pT["image"].(type) {
-							case string:
-								d.Image = image
-							}
-							switch command := pT["command"].(type) {
-							case string:
-								d.Command = command
-							}
-							h = append(h, d)
-						default:
-							log.Println("Wrong Params: ", reflect.TypeOf(params))
-						}
-					default:
-						log.Println("Wrong hop type: ", reflect.TypeOf(hopType))
-					}
+	hc := make(typedHops)
+	err := mapstructure.Decode(configMap, &hc)
+	if err != nil {
+		panic(err)
+	}
+
+	for name, defs := range hc {
+		for _, def := range defs {
+			if dockMap, ok := def["docker"]; ok {
+				docker := Docker{}
+				err := mapstructure.Decode(dockMap, &docker)
+				if err != nil {
+					panic(err)
 				}
-			default:
-				log.Println("Wrong hop def: ", reflect.TypeOf(firstDef))
+				hopsConfig[name] = []Hop{&docker}
+			} else {
+				return nil, fmt.Errorf(
+					"There's no definition of docker for %v", name)
 			}
 		}
-		hopsConfig[name] = h
 	}
 	return hopsConfig, nil
 }
