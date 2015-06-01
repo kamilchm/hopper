@@ -5,12 +5,12 @@
 - [x] run hops using docker API
 - [x] run hops on stdin using unix pipes
 - [x] use hop stdout with unix pipes
-- [ ] unit tests
+- [x] unit tests
 - [ ] isntall hops
   - [ ] local hops in cwd with hop.yaml
   - [ ] user hops defined in ~/.hopper/hops/*.yaml
 - [ ] uninstall hops
-  - [ ] all jops in cwd
+  - [ ] all hops in cwd
   - [ ] all user hops
 - [ ] update hops
   - [ ] remove dead hops
