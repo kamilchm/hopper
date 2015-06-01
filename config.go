@@ -72,6 +72,9 @@ func validateConfig(configMap map[string]interface{}) error {
 			v.ObjKV("docker", v.Object(
 				v.ObjKV("image", v.String()),
 				v.ObjKV("command", v.String()),
+				v.ObjKV("permissions", v.Optional(v.Object(
+					v.ObjKV("cwd", v.Boolean()),
+				))),
 			)),
 		)))),
 	)
