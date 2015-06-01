@@ -4,5 +4,5 @@ import:
     - package: github.com/EverythingMe/gofigure
     - package: github.com/fsouza/go-dockerclient
     - package: github.com/mitchellh/mapstructure
-    - package: github.com/Neverbland/validity
+    - package: github.com/gima/govalid
     - package: github.com/smartystreets/goconvey

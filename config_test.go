@@ -50,6 +50,58 @@ cat:
 			})
 		})
 	})
+
+	Convey("Given config without docker hop", t, func() {
+		hopDef := `---
+echo:
+- docker1:
+    image: ubuntu
+    command: echo
+`
+		configFile := prepareConfig(hopDef)
+
+		Convey("When trying to load config", func() {
+			_, err := LoadHops(configFile)
+
+			Convey("There should be error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+
+	Convey("Given config with docker hop without image", t, func() {
+		hopDef := `---
+echo:
+- docker:
+    command: echo
+`
+		configFile := prepareConfig(hopDef)
+
+		Convey("When trying to load config", func() {
+			_, err := LoadHops(configFile)
+
+			Convey("There should be error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+
+	Convey("Given config with docker hop without command", t, func() {
+		hopDef := `---
+echo:
+- docker:
+    image: ubuntu
+`
+		configFile := prepareConfig(hopDef)
+
+		Convey("When trying to load config", func() {
+			_, err := LoadHops(configFile)
+
+			Convey("There should be error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
 }
 
 func prepareConfig(content string) string {

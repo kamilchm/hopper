@@ -5,6 +5,7 @@ import (
 
 	"github.com/EverythingMe/gofigure"
 	"github.com/EverythingMe/gofigure/yaml"
+	v "github.com/gima/govalid/v1"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -23,6 +24,10 @@ func LoadHops(configFile string) (hops, error) {
 type typedHops map[string]([]map[string]interface{})
 
 func loadConfigMap(configMap map[string]interface{}) (hops, error) {
+	if err := validateConfig(configMap); err != nil {
+		return nil, err
+	}
+
 	hopsConfig := make(hops)
 	hc := make(typedHops)
 	err := mapstructure.Decode(configMap, &hc)
@@ -59,4 +64,21 @@ func loadConfigFile(configFile string) (map[string]interface{}, error) {
 	}
 
 	return configMap, nil
+}
+
+func validateConfig(configMap map[string]interface{}) error {
+	schema := v.Object(v.ObjKeys(v.String()),
+		v.ObjValues(v.Array(v.ArrEach(v.Object(
+			v.ObjKV("docker", v.Object(
+				v.ObjKV("image", v.String()),
+				v.ObjKV("command", v.String()),
+			)),
+		)))),
+	)
+	if path, err := schema.Validate(configMap); err != nil {
+		return fmt.Errorf("Invalid hop definition at %s. Error (%s)",
+			path, err)
+	} else {
+		return nil
+	}
 }
