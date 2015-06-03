@@ -6,9 +6,10 @@
 - [x] run hops on stdin using unix pipes
 - [x] use hop stdout with unix pipes
 - [x] unit tests
-- [ ] isntall hops
+- [ ] install hops
   - [ ] local hops in cwd with hop.yaml
   - [ ] user hops defined in ~/.hopper/hops/*.yaml
+- [ ] sexy README
 - [ ] uninstall hops
   - [ ] all hops in cwd
   - [ ] all user hops
@@ -16,7 +17,7 @@
   - [ ] remove dead hops
   - [ ] add new hops
 - [ ] run hops with host $HOME
-- [ ] sexy README
+- [ ] ``install --local/user/global``
 - [ ] using hopper ENV vars in hops
 - [ ] support for rkt
 
