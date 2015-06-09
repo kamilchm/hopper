@@ -35,6 +35,8 @@ func main() {
 
 	install := app.Command("install",
 		"Install hop.yaml as local commands")
+	installForce := install.Flag("force",
+		"Overwrite existing files").Short('f').Bool()
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case run.FullCommand():
@@ -46,10 +48,9 @@ func main() {
 		}
 
 		for h := range localHops {
-			if err := os.Symlink(os.Args[0], h); err == nil {
-				log.Println(h, "successfully installed")
-			} else {
-				log.Fatalf("Error while installing %v: %v", h, err)
+			err := installHop(h, "./", os.Args[0], *installForce)
+			if err != nil {
+				log.Fatal(err)
 			}
 		}
 	}
