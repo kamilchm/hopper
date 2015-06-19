@@ -15,7 +15,6 @@ import (
 func TestInstall(t *testing.T) {
 	Convey("Given empty dir", t, func() {
 		testDir := createTestDir()
-		log.Println(os.Args[0])
 
 		Convey("When installing hop", func() {
 			So(installHop("some-hop", testDir, "/bin/hopper", false),

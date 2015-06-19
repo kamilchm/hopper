@@ -37,6 +37,12 @@ func main() {
 		"Install hop.yaml as local commands")
 	installForce := install.Flag("force",
 		"Overwrite existing files").Short('f').Bool()
+	installPattern := install.Arg("pattern",
+		"Name pattern (* for any char)").Required().String()
+
+	search := app.Command("search", "Search for hops")
+	searchPattern := search.Arg("pattern",
+		"Search pattern (* for any char)").Required().String()
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case run.FullCommand():
@@ -47,11 +53,30 @@ func main() {
 			log.Fatal(err)
 		}
 
-		for h := range localHops {
+		found, err := localHops.searchHop(*installPattern)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for h := range *found {
 			err := installHop(h, "./", os.Args[0], *installForce)
 			if err != nil {
 				log.Fatal(err)
 			}
+		}
+	case search.FullCommand():
+		localHops, err := LoadHops(hopsFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		found, err := localHops.searchHop(*searchPattern)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for h := range *found {
+			log.Println(h)
 		}
 	}
 }

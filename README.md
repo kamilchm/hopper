@@ -12,15 +12,17 @@ You could also use wildcards in names likes:
 
 It will skip all the existing hops.
 
-## Fixing hops
-
-    $ hop install --fix node
+But if you want to overwrite existing files use ``--force`` flag. 
 
 ## Removing hops
 
     $ hop remove hop_*
 
-## Finding out hops
+## Search hops
+
+    $ hop serach http*
+
+## Info on hops
 
     $ hop info httpie
 
@@ -54,13 +56,13 @@ definiotions from local ``hops.yaml`` file.
 - [ ] install hops
   - [ ] local hops in cwd with hop.yaml
   - [ ] user hops defined in ~/.hopper/hops/*.yaml
-- [ ] sexy README
 - [ ] uninstall hops
   - [ ] all hops in cwd
   - [ ] all user hops
 - [ ] update hops
   - [ ] remove dead hops
   - [ ] add new hops
+- [ ] sexy README
 - [ ] run hops with host $HOME
 - [ ] ``install --local/user/global``
 - [ ] using hopper ENV vars in hops
