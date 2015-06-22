@@ -2,11 +2,11 @@
 
 ## Installing hop
 
-To install single hop or list of hops, issue the following command:
+To install single hop, issue the following command:
 
-    $ hop install hop_name1 hop_name2
+    $ hop install hop_name
 
-You could also use wildcards in names likes:
+You could also use wildcards in names like:
 
     $ hop install hop_*
 
