@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
-func installHop(name, hopDir, hopperBin string, force bool) error {
-	hopFile := hopDir + "/" + name
+func (w *workspace) installHop(name string, force bool) error {
+	hopFile := filepath.Join(w.BinDir, name)
 	_, err := os.Lstat(hopFile)
 	if err == nil {
 		hopTarget, err := os.Readlink(hopFile)
-		if err == nil && hopTarget == hopperBin {
+		if err == nil && hopTarget == w.HopperPath {
 			log.Printf("%v already installed, nothing to do", name)
 			return nil
 		} else if force {
@@ -27,8 +28,8 @@ func installHop(name, hopDir, hopperBin string, force bool) error {
 		}
 	}
 
-	if err := os.Symlink(hopperBin, hopFile); err == nil {
-		log.Println(name, "successfully installed in", hopDir)
+	if err := os.Symlink(w.HopperPath, hopFile); err == nil {
+		log.Println(name, "successfully installed in", w.BinDir)
 		return nil
 	} else {
 		return fmt.Errorf("Couldn't install %v: %v", name, err)

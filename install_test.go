@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"syscall"
@@ -14,42 +13,42 @@ import (
 
 func TestInstall(t *testing.T) {
 	Convey("Given empty dir", t, func() {
-		testDir := createTestDir()
+		wrk := workspace{Hops: nil, BinDir: createTestDir(),
+			HopperPath: "/bin/hopper"}
 
 		Convey("When installing hop", func() {
-			So(installHop("some-hop", testDir, "/bin/hopper", false),
-				ShouldBeNil)
+			So(wrk.installHop("some-hop", false), ShouldBeNil)
 
 			Convey("It should link to hopper", func() {
-				So(testDir+"/some-hop", shoouldLinkTo, "/bin/hopper")
+				So(wrk.BinDir+"/some-hop", shoouldLinkTo, "/bin/hopper")
 			})
 		})
 
 	})
 
 	Convey("Given dir with echo hop", t, func() {
-		testDir := createTestDir()
-		So(installHop("echo", testDir, os.Args[0], false), ShouldBeNil)
-		echoBefore := hopTime("echo", testDir)
+		wrk := workspace{Hops: nil, BinDir: createTestDir(),
+			HopperPath: os.Args[0]}
+		So(wrk.installHop("echo", false), ShouldBeNil)
+		echoBefore := hopTime("echo", wrk.BinDir)
 		time.Sleep(5 * time.Millisecond)
 
 		Convey("When installing echo and cat hop", func() {
-			So(installHop("echo", testDir, os.Args[0], false), ShouldBeNil)
-			So(installHop("cat", testDir, os.Args[0], false), ShouldBeNil)
+			So(wrk.installHop("echo", false), ShouldBeNil)
+			So(wrk.installHop("cat", false), ShouldBeNil)
 
 			Convey("cat should link to hopper", func() {
-				So(testDir+"/cat", shoouldLinkTo, os.Args[0])
+				So(wrk.BinDir+"/cat", shoouldLinkTo, os.Args[0])
 			})
 
 			Convey("echo should remain unchanged", func() {
-				So(hopTime("echo", testDir), ShouldResemble, echoBefore)
+				So(hopTime("echo", wrk.BinDir), ShouldResemble, echoBefore)
 			})
 
 			Convey("It could be installed with the --force flag", func() {
-				So(installHop("echo", testDir, os.Args[0], true),
-					ShouldBeNil)
+				So(wrk.installHop("echo", true), ShouldBeNil)
 				Convey("and echo shouldn't be updated", func() {
-					So(hopTime("echo", testDir), ShouldResemble, echoBefore)
+					So(hopTime("echo", wrk.BinDir), ShouldResemble, echoBefore)
 				})
 			})
 
@@ -58,25 +57,25 @@ func TestInstall(t *testing.T) {
 	})
 
 	Convey("Given dir with some file named echo", t, func() {
-		testDir := createTestDir()
-		So(installHop("echo", testDir, "/bin/bash", false), ShouldBeNil)
-		echoBefore := hopTime("echo", testDir)
+		wrk := workspace{Hops: nil, BinDir: createTestDir(),
+			HopperPath: "/bin/bash"}
+		So(wrk.installHop("echo", false), ShouldBeNil)
+		echoBefore := hopTime("echo", wrk.BinDir)
 		time.Sleep(5 * time.Millisecond)
 
+		wrk.HopperPath = os.Args[0]
 		Convey("When installing echo hop", func() {
-			So(installHop("echo", testDir, os.Args[0], false),
-				ShouldNotBeNil)
+			So(wrk.installHop("echo", false), ShouldNotBeNil)
 
 			Convey("echo file should remain unchanged", func() {
-				So(hopTime("echo", testDir), ShouldResemble, echoBefore)
+				So(hopTime("echo", wrk.BinDir), ShouldResemble, echoBefore)
 			})
 
 			Convey("but when installing with the --force flag", func() {
-				So(installHop("echo", testDir, os.Args[0], true),
-					ShouldBeNil)
+				So(wrk.installHop("echo", true), ShouldBeNil)
 
 				Convey("echo should be replaced", func() {
-					So(hopTime("echo", testDir), ShouldHappenAfter,
+					So(hopTime("echo", wrk.BinDir), ShouldHappenAfter,
 						echoBefore)
 				})
 			})
@@ -84,14 +83,6 @@ func TestInstall(t *testing.T) {
 		})
 
 	})
-}
-
-func createTestDir() string {
-	emptyDir, err := ioutil.TempDir("", "hopper-test")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return emptyDir
 }
 
 func hopTime(name, dir string) time.Time {
