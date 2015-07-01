@@ -4,7 +4,7 @@ import:
     - package: github.com/EverythingMe/gofigure
     - package: github.com/fsouza/go-dockerclient
     - package: github.com/mitchellh/mapstructure
-    - package: github.com/gima/govalid
+    - package: github.com/gima/govalid/v1
     - pacakge: gopkg.in/alecthomas/kingpin.v2
     - package: github.com/mitchellh/go-homedir
     - package: github.com/kardianos/osext
