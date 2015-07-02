@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"strings"
 
@@ -13,6 +13,7 @@ const (
 )
 
 func main() {
+	initLogging()
 	wrkspace, err := buildWorkspace()
 	if err != nil {
 		log.Fatal(err)
@@ -63,7 +64,7 @@ func main() {
 		}
 
 		for h := range *found {
-			log.Println(h)
+			fmt.Println(h)
 		}
 	}
 }

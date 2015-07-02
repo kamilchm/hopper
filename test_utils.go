@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 )
 
 func createTestDir() string {

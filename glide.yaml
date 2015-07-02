@@ -8,4 +8,5 @@ import:
     - pacakge: gopkg.in/alecthomas/kingpin.v2
     - package: github.com/mitchellh/go-homedir
     - package: github.com/kardianos/osext
+    - package: github.com/op/go-logging
     - package: github.com/smartystreets/goconvey

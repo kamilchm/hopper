@@ -54,6 +54,9 @@ func loadConfigMap(configMap map[string]interface{}) (hops, error) {
 }
 
 func loadConfigFile(configFile string) (map[string]interface{}, error) {
+	RedirectStandardLog("gofigure")
+	defer ResetStandardLog()
+
 	var configMap map[string]interface{}
 
 	loader := gofigure.NewLoader(yaml.Decoder{}, true)

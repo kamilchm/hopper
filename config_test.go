@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"io/ioutil"
-	"log"
 )
 
 func TestDockerConfig(t *testing.T) {

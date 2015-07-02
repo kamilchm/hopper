@@ -39,7 +39,7 @@ is to provide ``hop.yaml`` file in your project worksapce directory
 and define ``node`` hop there. If you call hopper there it will
 be started in local mode, which means that it will install all hops
 in the local dir instead of user profile and it will use you hop
-definitions from local ``hops.yaml`` file.
+definitions from local ``hop.yaml`` file.
 
 # TODO
 
@@ -52,7 +52,7 @@ definitions from local ``hops.yaml`` file.
 - [x] install hops
   - [x] local hops in cwd with hop.yaml
   - [x] user hops defined in ~/.hopper/hops/*.yaml
-- [ ] nice logs output
+- [x] nice logs output
 - [ ] installation script
 - [ ] OSX support
 - [ ] update hops

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"fmt"
-	"log"
 	"os"
 	"syscall"
 	"time"
