@@ -1,3 +1,4 @@
+// Searching hops
 package main
 
 import (
@@ -7,9 +8,11 @@ import (
 )
 
 var (
+	// Returned when there's no hop for given name
 	HopNotFound = errors.New("Can't find hop for given pattern")
 )
 
+// Search hops with matchins names
 func (hs *hops) searchHop(pattern string) (*hops, error) {
 	fHops := make(hops)
 	for name, h := range *hs {
@@ -23,6 +26,7 @@ func (hs *hops) searchHop(pattern string) (*hops, error) {
 	return &fHops, nil
 }
 
+// Tests if name matches given pattern
 func match(name, pattern string) bool {
 	if strings.ContainsRune(pattern, '*') {
 		rPattern := strings.Replace(pattern, "*", ".*", -1)

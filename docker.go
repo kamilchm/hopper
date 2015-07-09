@@ -1,3 +1,4 @@
+// Docker interactions
 package main
 
 import (
@@ -11,17 +12,24 @@ import (
 	"github.com/fsouza/go-dockerclient"
 )
 
+// Docker Hop definition
 type Docker struct {
-	Image       string
-	Command     string
+	// Image where hop will be run
+	Image string
+	// Command to run hop in docker
+	Command string
+	// Hop permisions to local system
 	Permissions permissions
 }
 
+// Defines hop permissions to local system
 type permissions struct {
 	Cwd bool
 }
 
-func (h *Docker) Run(cmdArgs ...string) (int, error) {
+// Runs hop with args as Docker container.
+// Passes local stdin, print hop stdout and stderr.
+func (d *Docker) Run(cmdArgs ...string) (int, error) {
 	endpoint := "unix:///var/run/docker.sock"
 	client, err := docker.NewClient(endpoint)
 	if err != nil {
@@ -29,18 +37,20 @@ func (h *Docker) Run(cmdArgs ...string) (int, error) {
 	}
 
 	containerConfig := &docker.Config{
-		Image:      h.Image,
-		Entrypoint: []string{h.Command},
+		Image:      d.Image,
+		Entrypoint: []string{d.Command},
 		Cmd:        cmdArgs,
 		Volumes:    make(map[string]struct{}),
 		StdinOnce:  true,
 	}
 
+	// checks if there's something on stdin
 	fi, err := os.Stdin.Stat()
 	if err != nil {
 		panic(err)
 	}
 
+	// is it a piped stream?
 	stdinPipe := false
 	if fi.Mode()&os.ModeNamedPipe != 0 {
 		stdinPipe = true
@@ -51,25 +61,29 @@ func (h *Docker) Run(cmdArgs ...string) (int, error) {
 
 	hostConfig := &docker.HostConfig{}
 
-	if h.Permissions.Cwd {
+	// setup permissions to local system
+	if d.Permissions.Cwd {
 		hostWd, _ := os.Getwd()
 		containerWd := "/hopper"
 		containerConfig.WorkingDir = containerWd
 		hostConfig.Binds = []string{hostWd + ":" + containerWd}
 	}
 
+	log.Debug("Creating container to run %v", d)
 	container, err := client.CreateContainer(docker.CreateContainerOptions{"", containerConfig, hostConfig})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer func() {
+		log.Debug("Removing temporary container %v", container)
 		client.RemoveContainer(docker.RemoveContainerOptions{
 			ID:    container.ID,
 			Force: true,
 		})
 	}()
 
+	log.Debug("attaching stdin, stdout and stderr")
 	attachChan := make(chan struct{})
 	go func(succChan chan struct{}) {
 		var outBuf bytes.Buffer
@@ -110,6 +124,7 @@ func (h *Docker) Run(cmdArgs ...string) (int, error) {
 		attachChan <- struct{}{}
 	}
 
+	log.Debug("starting container %v", container)
 	err = client.StartContainer(container.ID, &docker.HostConfig{})
 	if err != nil {
 		log.Fatal(err)

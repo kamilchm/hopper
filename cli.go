@@ -1,3 +1,4 @@
+// All CLI related stuff for running Hopper
 package main
 
 import (
@@ -9,9 +10,11 @@ import (
 )
 
 const (
+	// Hopper app binary name
 	appName = "hopper"
 )
 
+// Hopper entry-point
 func main() {
 	initLogging()
 	wrkspace, err := buildWorkspace()

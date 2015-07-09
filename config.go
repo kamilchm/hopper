@@ -1,3 +1,4 @@
+// Loads Hopper configuration
 package main
 
 import (
@@ -9,33 +10,36 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// Loads hops defined in configFile
 func LoadHops(configFile string) (hops, error) {
 	configMap, err := loadConfigFile(configFile)
 	if err != nil {
 		return nil, err
 	}
-	hops, err := loadConfigMap(configMap)
+	hops, err := parseConfigMap(configMap)
 	if err != nil {
 		return nil, err
 	}
 	return hops, nil
 }
 
-type typedHops map[string]([]map[string]interface{})
+// Hop name mapped to untyped hop list
+type rawHops map[string]([]map[string]interface{})
 
-func loadConfigMap(configMap map[string]interface{}) (hops, error) {
+// Parses YAML structure to typed list of Hops
+func parseConfigMap(configMap map[string]interface{}) (hops, error) {
 	if err := validateConfig(configMap); err != nil {
 		return nil, err
 	}
 
 	hopsConfig := make(hops)
-	hc := make(typedHops)
-	err := mapstructure.Decode(configMap, &hc)
+	rh := make(rawHops)
+	err := mapstructure.Decode(configMap, &rh)
 	if err != nil {
 		panic(err)
 	}
 
-	for name, defs := range hc {
+	for name, defs := range rh {
 		for _, def := range defs {
 			if dockMap, ok := def["docker"]; ok {
 				docker := Docker{}
@@ -53,6 +57,7 @@ func loadConfigMap(configMap map[string]interface{}) (hops, error) {
 	return hopsConfig, nil
 }
 
+// Reads YAML config and returns its content as plain Go generic maps
 func loadConfigFile(configFile string) (map[string]interface{}, error) {
 	RedirectStandardLog("gofigure")
 	defer ResetStandardLog()
@@ -69,6 +74,7 @@ func loadConfigFile(configFile string) (map[string]interface{}, error) {
 	return configMap, nil
 }
 
+// Validates config structure
 func validateConfig(configMap map[string]interface{}) error {
 	schema := v.Object(v.ObjKeys(v.String()),
 		v.ObjValues(v.Array(v.ArrEach(v.Object(

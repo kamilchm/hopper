@@ -1,3 +1,4 @@
+// Hop installation package
 package main
 
 import (
@@ -6,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// Installs hop in given workspace
 func (w *workspace) installHop(name string, force bool) error {
 	hopFile := filepath.Join(w.BinDir, name)
 	_, err := os.Lstat(hopFile)
