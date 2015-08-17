@@ -141,6 +141,7 @@ const (
 
 // SplitStream splits docker stream data into stdout and stderr.
 // For specifications see http://goo.gl/Dnbcye
+// TODO: check https://github.com/samalba/dockerclient/pull/3
 func SplitStream(stream io.Reader, stdout, stderr io.Writer) error {
 	header := make([]byte, 8)
 	for {
