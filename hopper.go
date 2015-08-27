@@ -9,7 +9,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-// Something to hop in from Hopper
+// Hop defines environment to run command from Hopper
 type Hop interface {
 	// Runs hop with given args
 	Run(cmdArgs ...string) (int, error)
@@ -57,7 +57,7 @@ func buildWorkspace() (*workspace, error) {
 	}
 	log.Debug("Hopper run from %v", hopperPath)
 	wsp = workspace{Hops: nil, BinDir: binDir, HopperPath: hopperPath}
-	hs, err := LoadHops(hopsFile)
+	hs, err := loadHops(hopsFile)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,6 @@ func (w *workspace) runHop(name string, args []string) {
 func (w *workspace) getHop(name string) (Hop, error) {
 	if h, exist := w.Hops[name]; exist {
 		return h[0], nil
-	} else {
-		return nil, fmt.Errorf("Cannot find hop definition for: %q", name)
 	}
+	return nil, fmt.Errorf("Cannot find hop definition for: %q", name)
 }

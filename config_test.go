@@ -24,7 +24,7 @@ cat:
 		configFile := prepareConfig(hopDef)
 
 		Convey("When hops are parsed", func() {
-			hops, _ := LoadHops(configFile)
+			hops, _ := loadHops(configFile)
 
 			echoHop, present := hops["echo"]
 			Convey("There should be echo hop", func() {
@@ -60,7 +60,7 @@ echo:
 		configFile := prepareConfig(hopDef)
 
 		Convey("When trying to load config", func() {
-			_, err := LoadHops(configFile)
+			_, err := loadHops(configFile)
 
 			Convey("There should be error", func() {
 				So(err, ShouldNotBeNil)
@@ -77,7 +77,7 @@ echo:
 		configFile := prepareConfig(hopDef)
 
 		Convey("When trying to load config", func() {
-			_, err := LoadHops(configFile)
+			_, err := loadHops(configFile)
 
 			Convey("There should be error", func() {
 				So(err, ShouldNotBeNil)
@@ -94,7 +94,7 @@ echo:
 		configFile := prepareConfig(hopDef)
 
 		Convey("When trying to load config", func() {
-			_, err := LoadHops(configFile)
+			_, err := loadHops(configFile)
 
 			Convey("There should be error", func() {
 				So(err, ShouldNotBeNil)

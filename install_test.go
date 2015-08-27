@@ -104,8 +104,7 @@ func shoouldLinkTo(actual interface{}, expected ...interface{}) string {
 
 	if linkTarget == expected[0].(string) {
 		return ""
-	} else {
-		return fmt.Sprintf("Expected target: %v, but it links to %v",
-			expected, linkTarget)
 	}
+	return fmt.Sprintf("Expected target: %v, but it links to %v",
+		expected, linkTarget)
 }

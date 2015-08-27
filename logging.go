@@ -38,14 +38,14 @@ func (w logWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-// Redirects standard library log output to hopper logs
+// RedirectStandardLog switch standard library log output to hopper logs
 func RedirectStandardLog(logName string) {
 	logger := logging.MustGetLogger(logName)
 
 	stdlog.SetOutput(&logWriter{logger})
 }
 
-// Resets standard library log output to stderr
+// ResetStandardLog switch back standard library log output to stderr
 func ResetStandardLog() {
 	stdlog.SetOutput(os.Stderr)
 }

@@ -32,7 +32,6 @@ func (w *workspace) installHop(name string, force bool) error {
 	if err := os.Symlink(w.HopperPath, hopFile); err == nil {
 		log.Notice("%v successfully installed in %v", name, w.BinDir)
 		return nil
-	} else {
-		return fmt.Errorf("Couldn't install %v: %v", name, err)
 	}
+	return fmt.Errorf("Couldn't install %v: %v", name, err)
 }

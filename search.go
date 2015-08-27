@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	// Returned when there's no hop for given name
-	HopNotFound = errors.New("Can't find hop for given pattern")
+	// ErrHopNotFound is returned when there's no hop for given name
+	ErrHopNotFound = errors.New("Can't find hop for given pattern")
 )
 
 // Search hops with matchins names
@@ -21,7 +21,7 @@ func (hs *hops) searchHop(pattern string) (*hops, error) {
 		}
 	}
 	if len(fHops) == 0 {
-		return nil, HopNotFound
+		return nil, ErrHopNotFound
 	}
 	return &fHops, nil
 }
@@ -32,7 +32,6 @@ func match(name, pattern string) bool {
 		rPattern := strings.Replace(pattern, "*", ".*", -1)
 		r := regexp.MustCompile("^" + rPattern + "$")
 		return r.MatchString(name)
-	} else {
-		return name == pattern
 	}
+	return name == pattern
 }

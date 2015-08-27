@@ -13,7 +13,7 @@ func TestSearch(t *testing.T) {
 			_, err := noHops.searchHop("some-hop")
 
 			Convey("It should fail with NotFound error", func() {
-				So(err, ShouldEqual, HopNotFound)
+				So(err, ShouldEqual, ErrHopNotFound)
 			})
 		})
 
@@ -41,7 +41,7 @@ func TestSearch(t *testing.T) {
 			_, err := theHops.searchHop("hop2")
 
 			Convey("It should fail with NotFound error", func() {
-				So(err, ShouldEqual, HopNotFound)
+				So(err, ShouldEqual, ErrHopNotFound)
 			})
 		})
 
@@ -94,7 +94,7 @@ func TestSearch(t *testing.T) {
 			_, err := theHops.searchHop("o*")
 
 			Convey("It should fail with NotFound error", func() {
-				So(err, ShouldEqual, HopNotFound)
+				So(err, ShouldEqual, ErrHopNotFound)
 			})
 		})
 	})

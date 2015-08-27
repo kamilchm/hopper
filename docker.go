@@ -27,7 +27,7 @@ type permissions struct {
 	Cwd bool
 }
 
-// Runs hop with args as Docker container.
+// Run hop with args as Docker container.
 // Passes local stdin, print hop stdout and stderr.
 func (d *Docker) Run(cmdArgs ...string) (int, error) {
 	endpoint := "unix:///var/run/docker.sock"
@@ -134,9 +134,9 @@ func (d *Docker) Run(cmdArgs ...string) (int, error) {
 }
 
 const (
-	StdinStream  byte = 0
-	StdoutStream      = 1
-	StderrStream      = 2
+	stdinStream  byte = 0
+	stdoutStream      = 1
+	stderrStream      = 2
 )
 
 // SplitStream splits docker stream data into stdout and stderr.
@@ -148,16 +148,15 @@ func SplitStream(stream io.Reader, stdout, stderr io.Writer) error {
 		if _, err := io.ReadFull(stream, header); err != nil {
 			if err == io.EOF {
 				return nil
-			} else {
-				return fmt.Errorf("could not read header: %v", err)
 			}
+			return fmt.Errorf("could not read header: %v", err)
 		}
 
 		var dest io.Writer
 		switch header[0] {
-		case StdinStream, StdoutStream:
+		case stdinStream, stdoutStream:
 			dest = stdout
-		case StderrStream:
+		case stderrStream:
 			dest = stderr
 		default:
 			return fmt.Errorf("bad STREAM_TYPE given: %x", header[0])

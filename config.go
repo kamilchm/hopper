@@ -10,8 +10,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// Loads hops defined in configFile
-func LoadHops(configFile string) (hops, error) {
+// loadHops defined in configFile
+func loadHops(configFile string) (hops, error) {
 	configMap, err := loadConfigFile(configFile)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,6 @@ func validateConfig(configMap map[string]interface{}) error {
 	if path, err := schema.Validate(configMap); err != nil {
 		return fmt.Errorf("Invalid hop definition at %s. Error (%s)",
 			path, err)
-	} else {
-		return nil
 	}
+	return nil
 }

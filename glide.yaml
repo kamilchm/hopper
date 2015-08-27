@@ -14,3 +14,5 @@ import:
   - package: github.com/alecthomas/template
   - package: github.com/alecthomas/units
   - package: gopkg.in/yaml.v2
+  - package: github.com/jtolds/gls
+  - package: github.com/smartystreets/assertions
